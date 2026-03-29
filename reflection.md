@@ -83,7 +83,7 @@ I have 4 different classes: Owner, Pet, Task, and Schedule. The Owner is pet own
 - Did your design change during implementation?
 - If yes, describe at least one change and why you made it.
 
-Yes,I removed age and special needs from pet, frequences from owner. And I also removed related methods. These are redundant. I also let the preference list contains preferred_tasks and preferred_pets keys, in case the users input invalid stuff. Also I add a generator in Schedule to generate the schedule.
+Yes,I removed age and special needs from pet, frequences from owner. And I also removed related methods. These are redundant. I also let the preference list contains preferred_tasks and preferred_pets keys, in case the users input invalid stuff. I add a generator in Schedule to generate the schedule. The biggest and most important change is that I moved the the tasks from under schedule to pet.
 
 ---
 
@@ -93,11 +93,14 @@ Yes,I removed age and special needs from pet, frequences from owner. And I also 
 
 - What constraints does your scheduler consider (for example: time, priority, preferences)?
 - How did you decide which constraints mattered most?
+My scheduler has owner available time, task priority, and owner preferences. Logically, the available time will over other constraints. That is, if the task time does not meet the owner's time availability, the task will be rejected before check other constraints. And the task priority is over preferences,  it only checks the preferences when the priority is the same. The preferences contains preffered tasks and pets,  the tasks are over pets.
+
 
 **b. Tradeoffs**
 
 - Describe one tradeoff your scheduler makes.
 - Why is that tradeoff reasonable for this scenario?
+The biggest tradeoff of the scheduler, even this project is that I moved the Task class from under Schedule class to Pet class. This change is because I realized that the tasks is related to a target pet rather than a broad concept. That is, I put the task under the Schedule because I think feed is like the owner will feed all pets together, but it might be not. Also for some specific tasks like walking a dog will make sense, but it is not likely to walk a cat or even a turtle.
 
 ---
 
