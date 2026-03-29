@@ -2,15 +2,88 @@
 
 ## 1. System Design
 
+Core actions:
+
+* Add a pet
+* Add a task(walk, feed...) 
+* Track today's schedule
+
 **a. Initial design**
 
 - Briefly describe your initial UML design.
 - What classes did you include, and what responsibilities did you assign to each?
+Here is the Mermaid code for my UML design:
+
+```
+classDiagram
+    class Owner {
+        +id : String
+        +name : String
+        +available_hours : List
+        +preferences : Dict
+        +add_pet(pet : Pet)
+        +remove_pet(pet_id : String)
+        +add_schedule(schedule : Schedule)
+        +remove_schedule(schedule_id: String)
+        +get_pets() : List[String]
+        +get_schedules() : List[String]
+        +__str__() : String
+    }
+
+    class Pet {
+        +id : String
+        +name : String
+        +species : String
+        +age : int
+        +special_needs : List
+        +update_name(new_name : String)
+        +update_species(new_species : String)
+        +update_age(new_age : int)
+        +add_special_need(need : String)
+        +remove_special_need(need : String)
+        +__str__() : String
+    }
+
+    class Task {
+        +id : String
+        +title : String
+        +duration_minutes : int
+        +priority : String
+        +frequency : String
+        +update_title(new_title : String)
+        +update_duration(new_duration : int)
+        +update_priority(new_priority : String)
+        +update_frequency(new_frequency : String)
+        +__str__() : String
+    }
+
+    class Schedule {
+        +id : String
+        +date : String
+        +tasks : List
+        +total_time : int
+        +explanation : String
+        +add_task(task : Task)
+        +remove_task(task_id : String)
+        +update_date(new_date : String)
+        +update_explanation(new_explanation : String)
+        +calculate_total_time() : int
+        +__str__() : String
+    }
+
+    Owner "1" --> "0..*" Pet : owns
+    Owner "1" --> "0..*" Schedule : creates
+    Schedule "1" --> "0..*" Task : contains
+    Schedule --> Pet : plans for
+```
+I have 4 different classes: Owner, Pet, Task, and Schedule. The Owner is pet owner, it can have multiple pets and schedule the tasks. Pet belongs to the only one owner and may have different attributes. Schedule belongs to one owner and contains different tasks. Task is similar to pet, it belongs to one schedule and have some attributes.
 
 **b. Design changes**
 
 - Did your design change during implementation?
 - If yes, describe at least one change and why you made it.
+
+Yes,I removed age and special needs from pet, frequences from owner. And I also removed related methods. These are redundant. I also let the preference list contains preferred_tasks and preferred_pets keys, in case the users input invalid stuff. Also I add a generator in Schedule to generate the schedule.
 
 ---
 
