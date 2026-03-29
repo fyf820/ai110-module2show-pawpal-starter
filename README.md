@@ -48,3 +48,25 @@ pip install -r requirements.txt
 3. Filtering by pet and task status
 4. Automate recurring tasks
 5. Warning when task conflicts
+
+### Testing PawPaw+
+run tests:
+```bash
+python -m pytest
+```
+
+1. test_sort_by_time_orders_shortest_first: 
+ Adds tasks out-of-order, confirms sort_by_time produces ascending duration_minutes
+2. test_daily_recurring_task_creates_next_day_occurrence: 
+ Calls pet.complete_task(), verifies original is marked done and a new task appears with due_date + 1 day
+3. test_non_recurring_task_does_not_spawn_next_occurrence: 
+ Completing a task with no frequency should not grow the task list
+4. test_conflict_detected_for_same_start_time: 
+ Two tasks at 09:00 — detect_conflicts must return an "overlaps" warning
+5. test_conflict_detected_when_task_outside_available_slot: 
+ Task at 14:00 vs slot 09:00–09:30 — must return a "does not fit" warning
+6. test_pet_with_no_tasks_produces_empty_schedule: 
+ Edge case: empty task list → total_time == 0, no crash
+
+ ### Confidence Level
+ 5
