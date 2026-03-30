@@ -62,6 +62,18 @@ class Task:
         """Mark the task as completed."""
         self.completed = True
 
+    def occurs_on(self, target: date) -> bool:
+        """Return True if this task should appear on the given date."""
+        if self.frequency is None:
+            return self.due_date == target
+        if self.frequency == "daily":
+            return self.due_date is None or target >= self.due_date
+        if self.frequency == "weekly":
+            if self.due_date is None:
+                return True
+            return target >= self.due_date and target.weekday() == self.due_date.weekday()
+        return False
+
     def next_occurrence(self) -> Optional["Task"]:
         """Return a new Task instance for the next occurrence, or None if not recurring."""
         if self.frequency == "daily":
@@ -299,23 +311,47 @@ class Schedule:
                 preference_score += 2
             if any(p.lower() in title_lower for p in preferred_pets):
                 preference_score += 1
-            return (priority_score, preference_score)
+            # Earlier start time wins tiebreaks; tasks with no start_time sort last
+            start_min = (
+                task.start_time.hour * 60 + task.start_time.minute
+                if task.start_time is not None
+                else float("inf")
+            )
+            return (priority_score, preference_score, -start_min)
+
+        def to_min(t: time) -> int:
+            return t.hour * 60 + t.minute
+
+        def conflicts_with_selected(task: Task, selected_intervals: list) -> bool:
+            """Return True if task's time window overlaps any already-selected timed interval."""
+            if task.start_time is None:
+                return False
+            t_start = to_min(task.start_time)
+            t_end = t_start + task.duration_minutes
+            return any(t_start < sel_end and sel_start < t_end for sel_start, sel_end in selected_intervals)
 
         sorted_tasks = sorted(available_tasks, key=sort_key, reverse=True)
         self.selected_task_ids = []
+        selected_intervals: list = []  # (start_min, end_min) for timed tasks already selected
         remaining = total_minutes
         reasons = []
         for task in sorted_tasks:
-            if task.duration_minutes <= remaining:
-                self.selected_task_ids.append(task.id)
-                remaining -= task.duration_minutes
-                title_lower = task.title.lower()
-                if any(t.lower() in title_lower for t in preferred_tasks):
-                    reasons.append(f"{task.title} (owner preferred task)")
-                elif any(p.lower() in title_lower for p in preferred_pets):
-                    reasons.append(f"{task.title} (owner preferred pet)")
-                else:
-                    reasons.append(f"{task.title} ({task.priority} priority)")
+            if task.duration_minutes > remaining:
+                continue
+            if conflicts_with_selected(task, selected_intervals):
+                continue
+            self.selected_task_ids.append(task.id)
+            remaining -= task.duration_minutes
+            if task.start_time is not None:
+                t_start = to_min(task.start_time)
+                selected_intervals.append((t_start, t_start + task.duration_minutes))
+            title_lower = task.title.lower()
+            if any(t.lower() in title_lower for t in preferred_tasks):
+                reasons.append(f"{task.title} (owner preferred task)")
+            elif any(p.lower() in title_lower for p in preferred_pets):
+                reasons.append(f"{task.title} (owner preferred pet)")
+            else:
+                reasons.append(f"{task.title} ({task.priority} priority)")
         self.total_time = total_minutes - remaining
         self.explanation = "Tasks selected: " + ", ".join(reasons) if reasons else "No tasks could fit in the available time."
 

@@ -176,3 +176,32 @@ def test_pet_with_no_tasks_produces_empty_schedule():
 
     assert schedule.get_all_tasks(owner.get_pets()) == []
     assert schedule.total_time == 0
+
+
+# --- occurs_on Logic ---
+
+def test_occurs_on_one_time_exact_date():
+    """A one-time task should only occur on its due date."""
+    due = date(2026, 3, 29)
+    task = Task(title="Vet visit", duration_minutes=60, priority="high", due_date=due)
+    assert task.occurs_on(due) is True
+    assert task.occurs_on(date(2026, 3, 30)) is False
+
+
+def test_occurs_on_daily_on_and_after_due():
+    """A daily task should occur on its due date and any date after."""
+    due = date(2026, 3, 29)
+    task = Task(title="Feed", duration_minutes=10, priority="medium", frequency="daily", due_date=due)
+    assert task.occurs_on(due) is True
+    assert task.occurs_on(date(2026, 3, 30)) is True
+    assert task.occurs_on(date(2026, 3, 28)) is False
+
+
+def test_occurs_on_weekly_same_weekday():
+    """A weekly task should occur on its due date and future dates sharing the same weekday."""
+    due = date(2026, 3, 29)  # Sunday
+    task = Task(title="Bath", duration_minutes=30, priority="low", frequency="weekly", due_date=due)
+    assert task.occurs_on(due) is True                    # same Sunday
+    assert task.occurs_on(date(2026, 4, 5)) is True       # next Sunday
+    assert task.occurs_on(date(2026, 3, 30)) is False     # Monday
+    assert task.occurs_on(date(2026, 3, 28)) is False     # before due date

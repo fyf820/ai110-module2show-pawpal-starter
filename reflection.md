@@ -109,12 +109,17 @@ The biggest tradeoff of the scheduler, even this project is that I moved the Tas
 **a. How you used AI**
 
 - How did you use AI tools during this project (for example: design brainstorming, debugging, refactoring)?
+I ask AI for suggestions that I am not sure how to solve or which choice is better when design. I asked AI to debug itself first, then I will go over the code/output to see if there is anything needed to be changed. I will give AI some suggestions and examples to fix this bug. For refactoring part, I will ask for suggestions and optimize the suggestion and ask AI to implement it.
+
 - What kinds of prompts or questions were most helpful?
+Give detailed examples and pointed out the issue to ask AI to do/fix is the most effected prompt. Also, ask suggestions first and choose which option to implement is also helpful. Choose an option and tell AI some personal idea is a great way of prompting.
 
 **b. Judgment and verification**
 
 - Describe one moment where you did not accept an AI suggestion as-is.
+The AI tried to add the checkbox of complement in add ask UI. I think it would be better if the checkbox is in the task items under the schedule. If the checkbox in add tasks, it would be hard to track daily and weekly tasks. 
 - How did you evaluate or verify what the AI suggested?
+I will review AI's explanation and my experience to see if the suggestion works. Also, I will check the output(tests/real APP/main output) to see if it meets what I want. If it is what I want, I will give prompt to clarify my requirement.
 
 ---
 
@@ -123,12 +128,16 @@ The biggest tradeoff of the scheduler, even this project is that I moved the Tas
 **a. What you tested**
 
 - What behaviors did you test?
+I tested core user flows in the app, such as adding owners, pets, and tasks, generating schedules, modifying or deleting tasks, and managing available time slots.
 - Why were these tests important?
+These tests were important because they represent the main actions a user would take when using the app. I could endure the system works well and aligns the requirement through test them. They also help me to catch logic bugs and design issues to make sure that I am in the right track.
 
 **b. Confidence**
 
 - How confident are you that your scheduler works correctly?
+5
 - What edge cases would you test next if you had more time?
+I want to test what will happen if the one time task and weekly task with the same priority have time conflict. I have a potential rule: FIFO(that is, first added task will be chosen if they have the same priority). However, as the weekly task will be updated, I am not sure which one would be chosen. 
 
 ---
 
@@ -137,11 +146,14 @@ The biggest tradeoff of the scheduler, even this project is that I moved the Tas
 **a. What went well**
 
 - What part of this project are you most satisfied with?
+I implemented all the requiremented features, and I even changed the structure to meet those requirements. I think I also guided the AI to build this APP well. I am proud of my work.
 
 **b. What you would improve**
 
 - If you had another iteration, what would you improve or redesign?
+I have rejected attributes/features that AI suggested but later I added them back. I think next time I need to ask AI for more specific details about what I want to delete. Also I have a big change, that is I changed Task class from owed by Schedule to Pet. This happened when I almost finished all the basic classes, and I costed a lot of time to make this change and fix related bugs. Next time I need to ask AI more about the structure details to find the issue eariler.
 
 **c. Key takeaway**
 
 - What is one important thing you learned about designing systems or working with AI on this project?
+Clarify the pain point and give examples are very important to work with AI, they cannot understand what I want. Also, asking suggestions and be sure this word is in the prompt, I have some time that forget add this word and the AI just modified my code file before I check what AI want to do.

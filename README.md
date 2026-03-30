@@ -70,3 +70,39 @@ python -m pytest
 
  ### Confidence Level
  5
+
+### Features
+
+**Task Management**
+- Add, remove, and update tasks with title, duration, priority, and optional start time
+- Mark tasks as complete
+- Parse start times from multiple formats (`9:00AM`, `09:00`, `14:50`)
+
+**Recurring Tasks**
+- Daily recurrence: a task repeats every day from its due date onward
+- Weekly recurrence: a task repeats on the same weekday each week
+- Completing a recurring task automatically enqueues the next occurrence with the correct due date
+
+**Smart Schedule Generation**
+- Selects tasks greedily by priority (`high > medium > low`), then by owner preferences, then by earliest start time
+- Skips tasks that exceed remaining available time
+- Skips tasks whose time windows overlap already-selected timed tasks
+- Produces a plain-English explanation of why each task was chosen
+
+**Sorting**
+- Sort selected schedule tasks by duration (shortest first)
+
+**Filtering**
+- Filter schedule tasks by completion status (`completed=True/False`)
+- Filter schedule tasks by pet name
+
+**Conflict Detection**
+- Overlap warning: flags any two scheduled tasks whose time windows intersect
+- Overrun warning: flags any task that does not fall entirely within an owner's declared availability slot
+
+**Owner & Pet Profiles**
+- Owner stores available time slots and preferences (preferred task types, preferred pets)
+- Multiple pets per owner, each with their own independent task list
+
+### Demo
+![alt text](image.png)
