@@ -29,6 +29,23 @@ def merge_slots(slots: list[TimeSlot]) -> list[TimeSlot]:
     return [TimeSlot(start_time=_from_minutes(s), duration_minutes=e - s) for s, e in merged]
 
 
+def task_emoji(title: str) -> str:
+    t = title.lower()
+    if any(k in t for k in ["walk", "run", "exercise"]): return "🚶"
+    if any(k in t for k in ["feed", "food", "meal", "eat"]): return "🍽️"
+    if any(k in t for k in ["med", "medicine", "pill", "vaccine"]): return "💊"
+    if any(k in t for k in ["groom", "brush", "bath", "trim", "nail"]): return "✂️"
+    if any(k in t for k in ["play", "toy", "fetch", "game"]): return "🎾"
+    return "📋"
+
+
+def species_emoji(species: str) -> str:
+    s = species.lower()
+    if s == "dog": return "🐕"
+    if s == "cat": return "🐈"
+    return "🐾"
+
+
 # ─────────────────────────────────────────────
 st.set_page_config(page_title="PawPal+", page_icon="🐾", layout="centered")
 st.title("🐾 PawPal+")
@@ -282,14 +299,15 @@ else:
             st.session_state.task_rows,
             key=lambda r: (_pri_rank.get(r["Priority"], 3), r["Duration (min)"])
         )
+        pet_species = {p.name: p.species for p in owner.get_pets()}
         st.write("Current tasks:")
         header = st.columns([2, 3, 2, 2, 2, 2, 2, 2])
         for col, label in zip(header, ["Pet", "Title", "Duration (min)", "Priority", "Start Time", "Due Date", "Frequency", ""]):
             col.markdown(f"**{label}**")
         for row in sorted_rows:
             col_pet, col_title, col_dur, col_pri, col_st, col_due, col_freq, col_rm = st.columns([2, 3, 2, 2, 2, 2, 2, 2])
-            col_pet.write(row["Pet"])
-            col_title.write(row["Title"])
+            col_pet.write(f"{species_emoji(pet_species.get(row['Pet'], 'other'))} {row['Pet']}")
+            col_title.write(f"{task_emoji(row['Title'])} {row['Title']}")
             col_dur.write(row["Duration (min)"])
             col_pri.write(PRIORITY_EMOJI.get(row["Priority"], row["Priority"]))
             col_st.write(row["Start Time"])
@@ -352,23 +370,42 @@ if "schedule" in st.session_state:
     st.success(f"Schedule for {schedule_date_obj.strftime('%A, %Y-%m-%d')} — {len(s.selected_task_ids)} task(s), {s.total_time} min total")
     st.markdown(f"**Explanation:** {s.explanation}")
 
+    # Metric cards
+    total_available = sum(slot.duration_minutes for slot in merged_slots)
+    high_count = sum(1 for t in s.get_all_tasks(pets) if t.priority == "high")
+    col_m1, col_m2, col_m3 = st.columns(3)
+    col_m1.metric("Tasks Scheduled", len(s.selected_task_ids))
+    col_m2.metric("Total Time", f"{s.total_time} min")
+    col_m3.metric("High Priority", high_count)
+
+    # Progress bar
+    if total_available > 0:
+        st.progress(
+            min(s.total_time / total_available, 1.0),
+            text=f"Time used: {s.total_time} / {total_available} min ({round(s.total_time / total_available * 100)}%)"
+        )
+
     # Pet lookup for the table
     pet_of = {task.id: pet for pet in pets for task in pet.tasks}
 
     # --- Sorted task table ---
-    st.markdown("#### Tasks (sorted shortest → longest)")
+    PRIORITY_EMOJI = {"high": "🔴 High", "medium": "🟡 Medium", "low": "🟢 Low"}
+
+    st.markdown("#### Tasks (sorted by priority, then shortest → longest)")
     s.sort_by_time(pets)
     sorted_tasks = s.get_all_tasks(pets)
 
     if sorted_tasks:
-        header = st.columns([2, 3, 2, 2, 2, 1])
-        for col, label in zip(header, ["Pet", "Title", "Priority", "Duration (min)", "Start Time", "Done"]):
+        header = st.columns([2, 3, 2, 2, 2, 2, 1])
+        for col, label in zip(header, ["Pet", "Title", "Priority", "Duration (min)", "Start Time", "Status", "Done"]):
             col.markdown(f"**{label}**")
         for t in sorted_tasks:
-            col_pet, col_title, col_pri, col_dur, col_st, col_done = st.columns([2, 3, 2, 2, 2, 1])
-            col_pet.write(pet_of[t.id].name if t.id in pet_of else "—")
-            col_title.write(t.title)
-            col_pri.write(t.priority)
+            col_pet, col_title, col_pri, col_dur, col_st, col_status, col_done = st.columns([2, 3, 2, 2, 2, 2, 1])
+            pet_obj = pet_of.get(t.id)
+            col_pet.write(f"{species_emoji(pet_obj.species) if pet_obj else '🐾'} {pet_obj.name if pet_obj else '—'}")
+            col_title.write(f"{task_emoji(t.title)} {t.title}")
+            col_pri.write(PRIORITY_EMOJI.get(t.priority, t.priority))
+            col_status.write("✅ Done" if t.completed else "⏳ Pending")
             col_dur.write(t.duration_minutes)
             col_st.write(t.start_time.strftime("%H:%M") if t.start_time else "—")
             checked = col_done.checkbox(

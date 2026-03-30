@@ -110,3 +110,19 @@ python -m pytest
 ### Challenge 3
 ![alt text](image-1.png)
 Because I have implemented the priority and a specific rules for the order of tasks, I just update the tasks table in app.py. Now the tasks will show tasks sorted by priority first, then by time, and the emojis will appear before the priority.
+
+### Challenge 4
+
+To make the app more user-friendly, I added visual enhancements across both the Tasks and Schedule sections:
+
+1. **Task-type emojis** — A helper function `task_emoji()` maps keywords in the task title to an emoji (🚶 walk/run, 🍽️ feed/meal, 💊 meds, ✂️ groom, 🎾 play, 📋 default). The emoji is prefixed to the Title column in both the current tasks table and the schedule table.
+
+2. **Species emojis** — A helper function `species_emoji()` shows 🐕 for dogs, 🐈 for cats, and 🐾 for others. Applied to the Pet column in both tables.
+
+3. **Completion status indicator** — The schedule table now includes a Status column showing ✅ Done or ⏳ Pending alongside the existing Done checkbox.
+
+4. **Schedule metric cards** — After the schedule is generated, three `st.metric()` cards display at a glance: Tasks Scheduled, Total Time (min), and High Priority task count.
+
+5. **Progress bar** — An `st.progress()` bar shows how much of the owner's available time the generated schedule fills, with a label showing exact minutes and percentage (e.g. `Time used: 45 / 60 min (75%)`).
+
+![alt text](image-2.png)
