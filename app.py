@@ -276,16 +276,22 @@ else:
         st.rerun()
 
     if st.session_state.task_rows:
+        PRIORITY_EMOJI = {"high": "🔴 High", "medium": "🟡 Medium", "low": "🟢 Low"}
+        _pri_rank = {"high": 0, "medium": 1, "low": 2}
+        sorted_rows = sorted(
+            st.session_state.task_rows,
+            key=lambda r: (_pri_rank.get(r["Priority"], 3), r["Duration (min)"])
+        )
         st.write("Current tasks:")
         header = st.columns([2, 3, 2, 2, 2, 2, 2, 2])
         for col, label in zip(header, ["Pet", "Title", "Duration (min)", "Priority", "Start Time", "Due Date", "Frequency", ""]):
             col.markdown(f"**{label}**")
-        for row in st.session_state.task_rows:
+        for row in sorted_rows:
             col_pet, col_title, col_dur, col_pri, col_st, col_due, col_freq, col_rm = st.columns([2, 3, 2, 2, 2, 2, 2, 2])
             col_pet.write(row["Pet"])
             col_title.write(row["Title"])
             col_dur.write(row["Duration (min)"])
-            col_pri.write(row["Priority"])
+            col_pri.write(PRIORITY_EMOJI.get(row["Priority"], row["Priority"]))
             col_st.write(row["Start Time"])
             col_due.write(row.get("Due Date", "—"))
             col_freq.write(row.get("Frequency", "one-time"))

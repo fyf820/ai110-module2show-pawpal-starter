@@ -106,3 +106,7 @@ python -m pytest
 
 ### Demo
 ![alt text](image.png)
+
+### Challenge 3
+![alt text](image-1.png)
+Because I have implemented the priority and a specific rules for the order of tasks, I just update the tasks table in app.py. Now the tasks will show tasks sorted by priority first, then by time, and the emojis will appear before the priority.
